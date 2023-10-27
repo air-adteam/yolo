@@ -36,6 +36,7 @@ from pathlib import Path
 
 import torch
 
+# 路径信息
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLOv5 root directory
 if str(ROOT) not in sys.path:
@@ -52,19 +53,19 @@ from utils.torch_utils import select_device, smart_inference_mode
 
 @smart_inference_mode()
 def run(
-        weights=ROOT / 'yolov5s.pt',  # model path or triton URL
+        weights=ROOT / 'yolov5s.pt',  # 模型路径
         source=ROOT / 'data/images',  # file/dir/URL/glob/screen/0(webcam)
-        data=ROOT / 'data/coco128.yaml',  # dataset.yaml path
-        imgsz=(640, 640),  # inference size (height, width)
-        conf_thres=0.25,  # confidence threshold
+        data=ROOT / 'data/coco128.yaml',  # dataset.yaml 路径
+        imgsz=(640, 640),  # 推断大小 (height, width)
+        conf_thres=0.25,  # 置信度阈值
         iou_thres=0.45,  # NMS IOU threshold
-        max_det=1000,  # maximum detections per image
-        device='',  # cuda device, i.e. 0 or 0,1,2,3 or cpu
-        view_img=False,  # show results
-        save_txt=False,  # save results to *.txt
+        max_det=1000,  # 每个图像的最大检测次数
+        device='',  # CUDA设备号, i.e. 0 or 0,1,2,3 or cpu
+        view_img=False,  # 展示结果
+        save_txt=False,  # 保存结果到 *.txt
         save_conf=False,  # save confidences in --save-txt labels
-        save_crop=False,  # save cropped prediction boxes
-        nosave=False,  # do not save images/videos
+        save_crop=False,  # 保存裁剪的预测框
+        nosave=False,  # 不保存 images/videos
         classes=None,  # filter by class: --class 0, or --class 0 2 3
         agnostic_nms=False,  # class-agnostic NMS
         augment=False,  # augmented inference
@@ -80,8 +81,9 @@ def run(
         dnn=False,  # use OpenCV DNN for ONNX inference
         vid_stride=1,  # video frame-rate stride
 ):
-    source = str(source)
-    save_img = not nosave and not source.endswith('.txt')  # save inference images
+    source = str(source) # 命令行输入进来，强制转为string
+    # 判断识别来源
+    save_img = not nosave and not source.endswith('.txt')  # 保存图片
     is_file = Path(source).suffix[1:] in (IMG_FORMATS + VID_FORMATS)
     is_url = source.lower().startswith(('rtsp://', 'rtmp://', 'http://', 'https://'))
     webcam = source.isnumeric() or source.endswith('.streams') or (is_url and not is_file)
@@ -89,11 +91,11 @@ def run(
     if is_url and is_file:
         source = check_file(source)  # download
 
-    # Directories
+    # 新建文件识别结果保存文件夹
     save_dir = increment_path(Path(project) / name, exist_ok=exist_ok)  # increment run
     (save_dir / 'labels' if save_txt else save_dir).mkdir(parents=True, exist_ok=True)  # make dir
 
-    # Load model
+    # 读取模型
     device = select_device(device)
     model = DetectMultiBackend(weights, device=device, dnn=dnn, data=data, fp16=half)
     stride, names, pt = model.stride, model.names, model.pt
@@ -216,6 +218,7 @@ def run(
         strip_optimizer(weights[0])  # update model (to fix SourceChangeWarning)
 
 
+# 参数定义
 def parse_opt():
     parser = argparse.ArgumentParser()
     parser.add_argument('--weights', nargs='+', type=str, default=ROOT / 'yolov5s.pt', help='model path or triton URL')
@@ -252,7 +255,9 @@ def parse_opt():
 
 
 def main(opt):
+    # 库检测
     check_requirements(exclude=('tensorboard', 'thop'))
+    # 运行
     run(**vars(opt))
 
 
